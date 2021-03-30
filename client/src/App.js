@@ -1,4 +1,5 @@
 import { QueryClient, QueryClientProvider } from "react-query";
+import { ActionCableProvider } from "react-actioncable-provider";
 import "./App.css";
 
 import Todos from "./Todos";
@@ -14,11 +15,13 @@ const reactQueryConfig = {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient} config={reactQueryConfig}>
-      <div className="App">
-        <Todos />
-      </div>
-    </QueryClientProvider>
+    <ActionCableProvider url={"ws://localhost:8000/cable"}>
+      <QueryClientProvider client={queryClient} config={reactQueryConfig}>
+        <div className="App">
+          <Todos />
+        </div>
+      </QueryClientProvider>
+    </ActionCableProvider>
   );
 }
 

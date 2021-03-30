@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useQuery, useMutation } from "react-query";
+import { ActionCableConsumer } from "react-actioncable-provider";
 
 import { getTodos, postTodos, putTodoById, deleteTodoById } from "./apis/todos";
-import { w3cwebsocket as W3CWebSocket } from "websocket";
+// import { w3cwebsocket as W3CWebSocket } from "websocket";
 
-const client = new W3CWebSocket("ws://127.0.0.1:8000/cable");
+// const client = new W3CWebSocket("ws://127.0.0.1:8000/cable");
 
 const Todo = ({ todo = {} }) => {
   const updateTodo = useMutation(putTodoById, {
@@ -87,29 +88,34 @@ const Todos = (props) => {
     },
   });
 
-  useEffect(() => {
-    client.onopen = () => {
-      console.log("WebSocket Client Connected");
-      client.send(
-        JSON.stringify({
-          command: "subscribe",
-          identifier: '{"channel":"UpdatesChannel"}',
-        })
-      );
-    };
+  // useEffect(() => {
+  //   client.onopen = () => {
+  //     console.log("WebSocket Client Connected");
+  //     client.send(
+  //       JSON.stringify({
+  //         command: "subscribe",
+  //         identifier: '{"channel":"UpdatesChannel"}',
+  //       })
+  //     );
+  //   };
 
-    client.onmessage = (message) => {
-      const messageData = JSON.parse(message?.data || {});
-      if (messageData?.identifier) {
-        const messageDataIdentifier = JSON.parse(messageData?.identifier);
-        if (messageDataIdentifier?.channel === "UpdatesChannel") {
-          const todoData = messageData?.message?.json || [];
-          setTodos([...todoData]);
-        }
-      }
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  //   client.onmessage = (message) => {
+  //     const messageData = JSON.parse(message?.data || {});
+  //     if (messageData?.identifier) {
+  //       const messageDataIdentifier = JSON.parse(messageData?.identifier);
+  //       if (messageDataIdentifier?.channel === "UpdatesChannel") {
+  //         const todoData = messageData?.message?.json || [];
+  //         setTodos([...todoData]);
+  //       }
+  //     }
+  //   };
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, []);
+
+  const handleReceivedUpdates = (response) => {
+    const newTodos = response?.json || [];
+    setTodos([...newTodos]);
+  };
 
   const loader = todosStatus === "loading" || isTodosLoading || isTodosFetching;
 
@@ -119,6 +125,11 @@ const Todos = (props) => {
 
   return (
     <div>
+      <ActionCableConsumer
+        channel={{ channel: "UpdatesChannel" }}
+        onReceived={handleReceivedUpdates}
+      />
+
       {todos?.map((todo) => (
         <Todo key={todo?.id} todo={todo} />
       ))}
