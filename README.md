@@ -1,4 +1,3 @@
-![todo_with_websockets](https://user-images.githubusercontent.com/18286521/112945323-c3e6e680-9151-11eb-854f-75e925133a44.gif)
 ### Overview
 
 A basic todo application with live reload using websockets. If two or more tabs/windows are open with the same application, making changes (adding, editing and deleting todos) to in one window or tab will automatically get reflected in other windows.
