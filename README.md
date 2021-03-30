@@ -24,3 +24,5 @@ References:
 - https://medium.com/@dakota.lillie/using-action-cable-with-react-c37df065f296
 
 ![An example with live reload for todos between two windows](https://user-images.githubusercontent.com/18286521/112945409-dcef9780-9151-11eb-878c-0b1abf5d3b54.gif)
+
+An example with live reload for todos between two windows
