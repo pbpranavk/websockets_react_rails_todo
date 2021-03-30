@@ -1,3 +1,4 @@
+![todo_with_websockets](https://user-images.githubusercontent.com/18286521/112945323-c3e6e680-9151-11eb-854f-75e925133a44.gif)
 ### Overview
 
 A basic todo application with live reload using websockets. If two or more tabs/windows are open with the same application, making changes (adding, editing and deleting todos) to in one window or tab will automatically get reflected in other windows.
@@ -23,4 +24,4 @@ References:
 - https://dev.to/dtroyano86/setting-up-a-basic-crud-rails-api-1mad
 - https://medium.com/@dakota.lillie/using-action-cable-with-react-c37df065f296
 
-! [screen recording with two windows and automatic updates] (https://github.com/pbpranavk/websockets_react_rails_todo/blob/master/todo_with_websockets.gif)
+![An example with live reload for todos between two windows](https://user-images.githubusercontent.com/18286521/112945409-dcef9780-9151-11eb-878c-0b1abf5d3b54.gif)
