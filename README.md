@@ -23,4 +23,4 @@ References:
 - https://dev.to/dtroyano86/setting-up-a-basic-crud-rails-api-1mad
 - https://medium.com/@dakota.lillie/using-action-cable-with-react-c37df065f296
 
-! [screen recording with two windows and automatic updates] (./todo_with_websockets.gif)
+! [screen recording with two windows and automatic updates] (https://github.com/pbpranavk/websockets_react_rails_todo/blob/master/todo_with_websockets.gif)
