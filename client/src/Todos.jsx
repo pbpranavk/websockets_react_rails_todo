@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useQuery, useMutation } from "react-query";
-import { ActionCableConsumer } from "react-actioncable-provider";
+import useWebSocket, { ReadyState } from "react-use-websocket";
+import { useParams } from "react-router-dom";
 
 import { getTodos, postTodos, putTodoById, deleteTodoById } from "./apis/todos";
-// import { w3cwebsocket as W3CWebSocket } from "websocket";
 
-// const client = new W3CWebSocket("ws://127.0.0.1:8000/cable");
-
-const Todo = ({ todo = {} }) => {
+const Todo = ({ todo = {}, group_id = 1, disabled = false }) => {
   const updateTodo = useMutation(putTodoById, {
     onSuccess: () => {
       setIsEditing(false);
@@ -40,10 +38,12 @@ const Todo = ({ todo = {} }) => {
             }}
           />
           <button
+            disabled={disabled}
             onClick={() => {
               updateTodo.mutate({
                 todo: { ...todo, title: newTitle },
                 id: todo?.id,
+                group_id,
               });
             }}
           >
@@ -56,8 +56,9 @@ const Todo = ({ todo = {} }) => {
           <p>{todo?.title || ""}</p>
           <button onClick={handleEditing}>edit</button>
           <button
+            disabled={disabled}
             onClick={() => {
-              deleteTodo.mutate({ id: todo?.id });
+              deleteTodo.mutate({ id: todo?.id, group_id });
             }}
           >
             delete
@@ -69,6 +70,9 @@ const Todo = ({ todo = {} }) => {
 };
 
 const Todos = (props) => {
+  const { id } = useParams();
+  const currentGroup = id || 1;
+
   const [newTodo, setNewTodo] = useState("");
   const [todos, setTodos] = useState([]);
 
@@ -88,34 +92,48 @@ const Todos = (props) => {
     },
   });
 
-  // useEffect(() => {
-  //   client.onopen = () => {
-  //     console.log("WebSocket Client Connected");
-  //     client.send(
-  //       JSON.stringify({
-  //         command: "subscribe",
-  //         identifier: '{"channel":"UpdatesChannel"}',
-  //       })
-  //     );
-  //   };
+  const {
+    sendMessage,
+    // lastMessage,
+    readyState,
+    // getWebSocket,
+  } = useWebSocket("ws://localhost:8000/cable", {
+    // share: true,
+    queryParams: { channel: "UpdatesChannel" },
+    onMessage: (message) => {
+      const messageData = JSON.parse(message?.data || null);
+      if (messageData?.type !== "ping") {
+        console.log(messageData);
+      }
+      if (messageData?.identifier) {
+        const messageDataIdentifier = JSON.parse(messageData?.identifier);
+        if (messageDataIdentifier?.channel === "UpdatesChannel") {
+          const todoData = messageData?.message?.json || [];
+          setTodos([...todoData]);
+          // console.log({ todoData });
+        }
+      }
+    },
+  });
 
-  //   client.onmessage = (message) => {
-  //     const messageData = JSON.parse(message?.data || {});
-  //     if (messageData?.identifier) {
-  //       const messageDataIdentifier = JSON.parse(messageData?.identifier);
-  //       if (messageDataIdentifier?.channel === "UpdatesChannel") {
-  //         const todoData = messageData?.message?.json || [];
-  //         setTodos([...todoData]);
-  //       }
-  //     }
-  //   };
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, []);
+  const connectionStatus = {
+    [ReadyState.CONNECTING]: "Connecting",
+    [ReadyState.OPEN]: "Open",
+    [ReadyState.CLOSING]: "Closing",
+    [ReadyState.CLOSED]: "Closed",
+    [ReadyState.UNINSTANTIATED]: "Uninstantiated",
+  }[readyState];
 
-  const handleReceivedUpdates = (response) => {
-    const newTodos = response?.json || [];
-    setTodos([...newTodos]);
-  };
+  useEffect(() => {
+    if (connectionStatus === "Open") {
+      sendMessage(
+        JSON.stringify({
+          command: "subscribe",
+          identifier: `{"channel":"UpdatesChannel", "group_id": ${currentGroup}}`,
+        })
+      );
+    }
+  }, [connectionStatus, sendMessage, currentGroup]);
 
   const loader = todosStatus === "loading" || isTodosLoading || isTodosFetching;
 
@@ -125,13 +143,15 @@ const Todos = (props) => {
 
   return (
     <div>
-      <ActionCableConsumer
-        channel={{ channel: "UpdatesChannel" }}
-        onReceived={handleReceivedUpdates}
-      />
+      <span>The WebSocket is currently {connectionStatus}</span>
 
       {todos?.map((todo) => (
-        <Todo key={todo?.id} todo={todo} />
+        <Todo
+          key={todo?.id}
+          todo={todo}
+          group_id={currentGroup}
+          disabled={readyState !== ReadyState.OPEN}
+        />
       ))}
 
       <div>
@@ -142,8 +162,12 @@ const Todos = (props) => {
           }}
         />
         <button
+          disabled={readyState !== ReadyState.OPEN}
           onClick={() => {
-            createTodo.mutate({ title: newTodo });
+            createTodo.mutate({
+              todo: { title: newTodo },
+              group_id: currentGroup,
+            });
           }}
         >
           Create New Todo

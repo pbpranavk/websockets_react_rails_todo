@@ -1,7 +1,7 @@
 class TodosController < ApplicationController
     def index
         puts "hi"
-        ActionCable.server.broadcast 'updates_channel', json:Todo.all
+        # ActionCable.server.broadcast 'updates_channel', json:Todo.all
         render json:Todo.all
     end
 
@@ -11,7 +11,7 @@ class TodosController < ApplicationController
           # serialized_data = ActiveModelSerializers::Adapter::Json.new(
           #   TodoSerializer.new(todo)
           # ).serializable_hash
-          ActionCable.server.broadcast 'updates_channel', json:Todo.all
+          ActionCable.server.broadcast "updates_channel_#{params[:group_id]}", json:Todo.all
           # UpdatesChannel.broadcast_to  todo
           render json: todo
         else
@@ -23,7 +23,7 @@ class TodosController < ApplicationController
       todo = Todo.find(params[:id])
       todo.update_attributes(todo_params)
       if todo.save
-        ActionCable.server.broadcast 'updates_channel', json:Todo.all
+        ActionCable.server.broadcast "updates_channel_#{params[:group_id]}", json:Todo.all
         render json: todo
       else
         render json: {message: "Saving Unsuccessful"}
@@ -32,7 +32,7 @@ class TodosController < ApplicationController
 
     def destroy
       Todo.destroy(params[:id])
-      ActionCable.server.broadcast 'updates_channel', json:Todo.all
+      ActionCable.server.broadcast "updates_channel_#{params[:group_id]}", json:Todo.all
       render json: {message: "Todo deleted successfully"}
     end
 

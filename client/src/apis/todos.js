@@ -7,18 +7,18 @@ const getTodos = async () => {
   return data;
 };
 
-const postTodos = async (todo) => {
-  const { data } = await axios.post("/todos", { todo });
+const postTodos = async ({ todo, group_id }) => {
+  const { data } = await axios.post("/todos", { todo, group_id });
   return data;
 };
 
-const putTodoById = async ({ todo, id }) => {
-  const { data } = await axios.put(`/todos/${id}`, { todo });
+const putTodoById = async ({ todo, id, group_id }) => {
+  const { data } = await axios.put(`/todos/${id}`, { todo, group_id });
   return data;
 };
 
-const deleteTodoById = async ({ id }) => {
-  const { data } = await axios.delete(`/todos/${id}`);
+const deleteTodoById = async ({ id, group_id }) => {
+  const { data } = await axios.delete(`/todos/${id}`, { group_id });
   return data;
 };
 

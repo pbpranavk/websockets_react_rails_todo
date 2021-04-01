@@ -2,6 +2,12 @@
 
 A basic todo application with live reload using websockets. If two or more tabs/windows are open with the same application, making changes (adding, editing and deleting todos) to in one window or tab will automatically get reflected in other windows.
 
+#### Update
+
+- After the initial POC, I realized modern applications would have multiple groups of subscribers who don't share data from database.
+- Therefore, while subscribing I'm sending a group_id and while broadcasting, I'll be just broadcasting to the subscribers of that group.
+- Moved from async to redis for verifying above functionality
+
 ### Backend
 
 - Backend of this application is made with Ruby on Rails.
@@ -9,6 +15,7 @@ A basic todo application with live reload using websockets. If two or more tabs/
 - Whenever a new todo is created or an existing todo is updated or deleted, an array updated todo objects are sent to the websocket channel.
 
 To Run BE:
+Prerequisites: Redis should be up and running at 6379 you can change the port in config/cable.yml file
 
 - bundle install
 - rails s -p 8000
