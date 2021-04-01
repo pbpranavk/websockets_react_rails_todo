@@ -18,7 +18,8 @@ const putTodoById = async ({ todo, id, group_id }) => {
 };
 
 const deleteTodoById = async ({ id, group_id }) => {
-  const { data } = await axios.delete(`/todos/${id}`, { group_id });
+  console.log({ group_id });
+  const { data } = await axios.delete(`/todos/${id}`, { data: { group_id } });
   return data;
 };
 

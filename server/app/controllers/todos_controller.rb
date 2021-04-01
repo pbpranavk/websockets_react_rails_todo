@@ -1,7 +1,7 @@
 class TodosController < ApplicationController
     def index
         puts "hi"
-        # ActionCable.server.broadcast 'updates_channel', json:Todo.all
+        ActionCable.server.broadcast 'updates_channel', json:Todo.all
         render json:Todo.all
     end
 

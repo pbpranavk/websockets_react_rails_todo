@@ -81,6 +81,7 @@ const Todos = (props) => {
     isLoading: isTodosLoading,
     isFetching: isTodosFetching,
   } = useQuery("getTodos", getTodos, {
+    refetchOnWindowFocus: false,
     onSuccess: (data) => {
       setTodos(data);
     },
